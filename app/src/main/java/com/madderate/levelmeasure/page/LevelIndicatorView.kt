@@ -47,7 +47,7 @@ class LevelIndicatorView @JvmOverloads constructor(
     private var centerX: Float = 0f
     private var centerY: Float = 0f
     private var borderRadius: Float = 0f
-    private val borderWidth: Float = 8f.dp
+    private val borderWidth: Float = 4f.dp
 
     // 背景色
     private val whitePaint: Paint = Paint().apply {
@@ -58,7 +58,7 @@ class LevelIndicatorView @JvmOverloads constructor(
     // 构成最外面的环
     private val defaultPaint = Paint().apply {
         color = ResourcesCompat.getColor(
-            resources, android.R.color.darker_gray, context.theme
+                resources, android.R.color.holo_red_dark, context.theme
         )
         isAntiAlias = true
     }
@@ -117,27 +117,24 @@ class LevelIndicatorView @JvmOverloads constructor(
                     drawCircle(centerX, centerY, borderRadius, correctPaint)
                     drawCircle(centerX, centerY, borderRadius - borderWidth, whitePaint)
                     drawCircle(indicatorX, indicatorY, indicatorRadius, correctPaint)
-                    drawLine(
-                        centerX - indicatorRadius, centerY,
-                        centerX + indicatorRadius, centerY, defaultPaint
-                    )
-                    drawLine(
-                        centerX, centerY - indicatorRadius,
-                        centerX, centerY + indicatorRadius, defaultPaint
-                    )
                 } else {
                     drawCircle(centerX, centerY, borderRadius, defaultPaint)
                     drawCircle(centerX, centerY, borderRadius - borderWidth, whitePaint)
                     drawCircle(indicatorX, indicatorY, indicatorRadius, defaultPaint)
-                    drawLine(
-                        centerX - indicatorRadius, centerY,
-                        centerX + indicatorRadius, centerY, defaultPaint
-                    )
-                    drawLine(
-                        centerX, centerY - indicatorRadius,
-                        centerX, centerY + indicatorRadius, defaultPaint
-                    )
                 }
+                if (indicatorX >= centerX - MARGIN_OF_ERROR
+                        && indicatorX <= centerX + MARGIN_OF_ERROR) {
+                    drawLine(centerX, centerY - borderRadius, centerX, centerY + borderRadius, correctPaint)
+                } else {
+                    drawLine(centerX, centerY - borderRadius, centerX, centerY + borderRadius, defaultPaint)
+                }
+                if (indicatorY >= centerY - MARGIN_OF_ERROR
+                        && indicatorY <= centerY + MARGIN_OF_ERROR) {
+                    drawLine(centerX - borderRadius, centerY, centerX + borderRadius, centerY, correctPaint)
+                } else {
+                    drawLine(centerX - borderRadius, centerY, centerX + borderRadius, centerY, defaultPaint)
+                }
+
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -156,7 +153,7 @@ class LevelIndicatorView @JvmOverloads constructor(
                 val gravityX = values[0]
                 val gravityY = values[1]
                 indicatorX = maxIndicatorReachableRadius * (gravityX / MAX_GRAVITY)
-                indicatorY = maxIndicatorReachableRadius * (gravityY / MAX_GRAVITY)
+                indicatorY = -maxIndicatorReachableRadius * (gravityY / MAX_GRAVITY)
                 val predictRadius = sqrt(indicatorX.pow(2) + indicatorY.pow(2))
                 if (predictRadius > maxIndicatorReachableRadius) {
                     indicatorX =
@@ -177,6 +174,6 @@ class LevelIndicatorView @JvmOverloads constructor(
     companion object {
         // 低于 7 m^2/s 就让它在边缘待着（
         private const val MAX_GRAVITY = 3f
-        private const val MARGIN_OF_ERROR = 4f
+        private const val MARGIN_OF_ERROR = 2f
     }
 }
